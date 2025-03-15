@@ -1,29 +1,35 @@
-name: CI Pipeline
+name: Build and Deploy Flask App
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout du code
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+      - name: Connexion à Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-      - name: Install dependencies
+      - name: Construire et pousser l'image Docker
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          docker build -t ${{ secrets.DOCKER_USER }}/flask-app:latest .
+          docker push ${{ secrets.DOCKER_USER }}/flask-app:latest
 
-      - name: Build Docker image
-        run: docker build -t flask-app:latest .
+      - name: Configurer `kubectl`
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+          export KUBECONFIG=kubeconfig.yaml
+
+      - name: Déployer sur Kubernetes
+        run: |
+          kubectl apply -f fastapi-deployment.yml
+          kubectl apply -f fastapi-service.yml
+          kubectl apply -f ingress.yml
+          kubectl apply -f postgres-deployment.yml
+          kubectl apply -f postgres-service.yml

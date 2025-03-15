@@ -26,10 +26,3 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
           export KUBECONFIG=kubeconfig.yaml
 
-      - name: Déployer sur Kubernetes
-        run: |
-          kubectl apply -f fastapi-deployment.yml
-          kubectl apply -f fastapi-service.yml
-          kubectl apply -f ingress.yml
-          kubectl apply -f postgres-deployment.yml
-          kubectl apply -f postgres-service.yml

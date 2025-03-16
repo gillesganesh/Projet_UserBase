@@ -29,9 +29,15 @@ class UserResponse(UserCreate):
 def read_root():
     return {"message": "Bienvenue sur l'API Utilisateurs"}
 
-@app.get("/users", response_model=List[UserResponse])
+@app.get("/users")
 def get_users(db: Session = Depends(get_db)):
-    return db.query(User).all()
+    try:
+        users = db.query(User).all()
+	return users 
+    except Exception as e:
+        # Retourner une erreur HTTP 500 avec un message personnalisé
+        raise HTTPException(status_code=500, detail=f""La base de données est vide. Veuillez ajouter des utilisateurs. documentation_url : /docs: {str(e)}")
+      
 
 @app.post("/users", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):

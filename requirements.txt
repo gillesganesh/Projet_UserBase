@@ -1,4 +1,9 @@
-fastapi==0.95.2
-uvicorn==0.22.0
-sqlalchemy==2.0.0
-psycopg2-binary==2.9.5
+joblib
+jupyter
+flask
+numpy
+scikit-learn==1.4.2
+notebook
+pandas
+matplotlib
+seaborn

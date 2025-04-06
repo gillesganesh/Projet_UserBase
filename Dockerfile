@@ -1,20 +1,20 @@
-# Utiliser une image officielle de Python comme base
+# Base image
 FROM python:3.9-slim
 
-# Définir le répertoire de travail dans le conteneur
+# Set working directory
 WORKDIR /app
 
-# Copier le fichier de dépendances et installer les packages
-COPY requirements.txt .
+# Copier les fichiers
+COPY . /app
 
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install notebook
 
-# Copier tout le reste du projet dans le conteneur
-COPY . .
+# Exposer les ports Flask (5000) et Jupyter (8888)
+EXPOSE 5000
+EXPOSE 8888
 
-# Exposer le port 8000 pour l’API FastAPI
-EXPOSE 8000
+# Commande de démarrage : Flask + Jupyter
+CMD ["sh", "-c", "jupyter notebook --ip=0.0.0.0 --no-browser --NotebookApp.token='' --NotebookApp.password='' --allow-root & python app.py"]
 
-# Commande pour démarrer l’application avec Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
